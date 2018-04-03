@@ -1,5 +1,7 @@
 package com.example.user;
 
+import java.lang.reflect.Method;
+
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
@@ -28,6 +30,7 @@ public class User
      */
     @Id
     @GeneratedValue
+    @JsonProperty(access = Access.READ_ONLY)
     private Long id;
 
     /**
@@ -84,8 +87,44 @@ public class User
         this.lastname = lastname;
         this.password = password;
     }
-    
 
+    /**
+     * Merge the given user's non null properties into this  user
+     * @param otherUser The user to get the properties from
+     */
+    public void merge(User otherUser)
+    {
+        if(otherUser == null)
+        {
+            return;
+        }
+        
+        if(!StringUtils.isEmpty(otherUser.getUsername()))
+        {
+            this.setUsername(otherUser.getUsername());
+        }
+        
+        if(!StringUtils.isEmpty(otherUser.getEmail()))
+        {
+            this.setEmail(otherUser.getEmail());
+        }
+        
+        if(otherUser.getFirstname() != null)
+        {
+            this.setFirstname(otherUser.getFirstname());
+        }
+        
+        if(otherUser.getLastname() != null)
+        {
+            this.setLastname(otherUser.getLastname());
+        }
+
+        if(!StringUtils.isEmpty(otherUser.getPassword()))
+        {
+            this.setPassword(otherUser.getPassword());
+        }
+    }
+    
     /**
      * Update the hashed password before database persistence
      */
@@ -98,12 +137,12 @@ public class User
             hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt());
         }
     }
-    
+
     /**
-     * Helper function for checking if the entity has plain text password set on it
+     * Function for checking if the entity has plain text password set on it
      * @return {@code True} if the entity has plain text password, {@code false} otherwise
      */
-    public boolean hasPassword()
+    private boolean hasPassword()
     {
         return !StringUtils.isEmpty(password);
     }
@@ -155,22 +194,52 @@ public class User
     {
         return lastname;
     }
-    
+
     /**
-     * @param hashedPassword The hased password to set
+     * @param password The password to set
      */
-    public void setHashedPassword(String hashedPassword)
+    public void setPassword(String password)
     {
-        this.hashedPassword = hashedPassword;
+        this.password = password;
     }
 
     /**
-     * @return The hashed password of the entity
+     * @param username The username to set
      */
-    public String getHashedPassword()
+    public void setUsername(String username)
     {
-        return hashedPassword;
+        this.username = username;
     }
 
+    /**
+     * @param email The email to set
+     */
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
 
+    /**
+     * @param firstname The first name to set
+     */
+    public void setFirstname(String firstname)
+    {
+        this.firstname = firstname;
+    }
+
+    /**
+     * @param lastname The last name to set
+     */
+    public void setLastname(String lastname)
+    {
+        this.lastname = lastname;
+    }
+
+    /**
+     * @return The user's password
+     */
+    public String getPassword()
+    {
+        return password;
+    }
 }

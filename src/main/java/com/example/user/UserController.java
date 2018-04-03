@@ -111,14 +111,8 @@ public class UserController
             return ResponseEntity.notFound().build();
         }
         
-        user.setId(existingUser.get().getId());
-        
-        if(!user.hasPassword())
-        {
-            user.setHashedPassword(existingUser.get().getHashedPassword());
-        }
-        
-        User savedUser = userRepository.save(user);
+        existingUser.get().merge(user);
+        User savedUser = userRepository.save(existingUser.get());
 
         return new ResponseEntity<User>(savedUser, HttpStatus.OK);
     }
